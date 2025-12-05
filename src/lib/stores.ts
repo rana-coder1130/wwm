@@ -33,3 +33,13 @@ export const baiyeSettings = createLocalStorage<{ days: number[]; time: string }
 );
 
 export const timerState = createLocalStorage<Record<string, number>>('yanyunTimers', {});
+
+export type ToastItem = {
+	id: number;
+	text: string;
+	actionLabel?: string;
+	// onAction is intentionally any to allow passing functions; this store is used only in browser
+	onAction?: any;
+};
+
+export const toasts = writable<ToastItem[]>([]);

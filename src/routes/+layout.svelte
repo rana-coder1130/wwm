@@ -3,6 +3,7 @@
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import Toast from '$lib/components/Toast.svelte';
 
 	let { children } = $props();
 
@@ -17,6 +18,8 @@
 <div class="flex flex-col w-full h-full overflow-hidden">
 	<Header bind:searchActive bind:menuActive />
 	<Sidebar bind:active={menuActive} />
+
+	<Toast />
 
 	<main id="main" class="flex-1 overflow-y-auto overflow-x-hidden">
 		{@render children()}

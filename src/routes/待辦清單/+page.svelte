@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { checklistData } from '$lib/data/checklist';
+	import type { ChecklistTask } from '$lib/types';
 	import {
 		checklistState,
 		countsState,
@@ -10,91 +11,65 @@
 	import CounterCard from '$lib/components/checklist/CounterCard.svelte';
 	import TaskCard from '$lib/components/checklist/TaskCard.svelte';
 	import WeeklyGroupCard from '$lib/components/checklist/WeeklyGroupCard.svelte';
-	import type { ChecklistTask } from '$lib/types';
-
-	let state = $checklistState;
-	let counts = $countsState;
-	let lifetime = $lifetimeState;
-	let hidden = $hiddenTasks;
-	let baiye = $baiyeSettings;
+	import ProgressCard from '$lib/components/checklist/ProgressCard.svelte';
+	import PartyAlert from '$lib/components/checklist/PartyAlert.svelte';
+	import TaskSection from '$lib/components/checklist/TaskSection.svelte';
+	import { createChecklistLogic } from '$lib/utils/checklistLogic';
 
 	const today = new Date().getDay();
-	const isPartyDay = baiye.days.includes(today);
 
-	function toggleTask(type: 'daily' | 'weekly', id: string) {
-		const list = state[type];
-		const isCurrentlyChecked = list.includes(id);
+	const dailyGroups = [
+		{ key: 'core', title: '每日必做' },
+		{ key: 'optional', title: '每日選做' },
+		{ key: 'social', title: '社交/多人' },
+		{ key: 'micro', title: '積少成多' },
+		{ key: 'timed', title: '限時活動' }
+	];
 
-		const nextList = isCurrentlyChecked
-			? list.filter((item: string) => item !== id)
-			: [...list, id];
 
-		let nextLifetime = lifetime;
+	const logic = createChecklistLogic();
 
-		if (!isCurrentlyChecked && type === 'daily') {
-			const taskDef = checklistData.daily.find((t: ChecklistTask) => t.id === id);
-			if (taskDef?.trackLifetime) {
-				nextLifetime = { ...lifetime, [id]: (lifetime[id] || 0) + 1 };
-
-				if (nextLifetime[id] >= (taskDef.limit || 0)) {
-					setTimeout(() => {
-						if (
-							confirm(
-								`【${taskDef.text}】已完成 ${taskDef.limit} 次。\n是否要永久隱藏此項目，讓清單更乾淨？`
-							)
-						)
-							{
-								hiddenTasks.set([...hidden, id]);
-							}
-					}, 200);
-				}
-			}
+	function handleResetAll() {
+		if (
+			!confirm(
+				'確定要全部重置嗎？這會清除每日/每週已勾選狀態、計數器與追蹤次數。'
+			)
+		) {
+			return;
 		}
 
-		const nextState = { ...state, [type]: nextList };
-		state = nextState;
-		lifetime = nextLifetime;
-		checklistState.set(nextState);
-		lifetimeState.set(nextLifetime);
+		const clearHidden = confirm('是否同時清除已隱藏項目？（會還原所有被隱藏的任務）');
+		logic.resetAll({ clearHidden });
+		// 小小延遲讓 UI 反應在 localStorage 更新後更平滑
+		setTimeout(() => {
+			location.reload();
+		}, 50);
 	}
 
-	function resetTasks(type: 'daily' | 'weekly') {
-		if (confirm('確定重置？')) {
-			const nextState = { ...state, [type]: [] };
-			const nextCounts = type === 'daily' ? { ...counts, d_orders: 0 } : counts;
-			state = nextState;
-			counts = nextCounts;
-			checklistState.set(nextState);
-			countsState.set(nextCounts);
-		}
-	}
+	const groupedDaily: Array<{ key: string; title: string; items: ChecklistTask[] }> = $derived.by(() =>
+		dailyGroups.map((group) => ({
+			...group,
+			items: checklistData.daily.filter(
+				(item) => (item.category || 'core') === group.key && logic.isTaskVisible(item)
+			)
+		}))
+	);
 
-	function toggleCounter(id: string, idx: number) {
-		const current = counts[id] || 0;
-		const target = idx + 1;
-		const nextCounts = { ...counts, [id]: current === target ? 0 : target };
-		counts = nextCounts;
-		countsState.set(nextCounts);
-	}
 
-	function incrementCounter(id: string, max: number) {
-		const current = counts[id] || 0;
-		const nextCounts = { ...counts, [id]: current < max ? current + 1 : 0 };
-		counts = nextCounts;
-		countsState.set(nextCounts);
-	}
+	const isPartyDay = $baiyeSettings.days.includes(today);
 
-	function resetCounter(id: string) {
-		const nextCounts = { ...counts, [id]: 0 };
-		counts = nextCounts;
-		countsState.set(nextCounts);
-	}
-
-	function isTaskVisible(task: ChecklistTask): boolean {
-		if (hidden.includes(task.id)) return false;
-		if (task.days && !task.days.includes(today)) return false;
-		return true;
-	}
+	const visibleDailyTasks = $derived(() => logic.getVisibleDailyTasks());
+	const dailyProgress = $derived({
+		current: $checklistState.daily.length,
+		total: visibleDailyTasks.length
+	});
+	const weeklyProgress = $derived({
+		current: $checklistState.weekly.length,
+		total: checklistData.weekly.reduce((acc, t) =>
+			acc + (t.type === 'group' && t.subList ? t.subList.length : 1),
+			0
+		)
+	});
 	</script>
 
 	<svelte:head>
@@ -105,160 +80,106 @@
 		<!-- Header -->
 		<div class="flex flex-col gap-6">
 			<div class="flex justify-between items-center">
-				<a
-					href="/"
-					class="no-underline text-(--accent-primary) font-semibold cursor-pointer transition-all duration-200 py-2 px-4 rounded-lg bg-(--accent-primary)/15 hover:bg-(--accent-primary)/25 hover:-translate-x-1"
-				>
-					⬅️ 返回
-				</a>
+				<a href="/" class="btn-invert">⬅️ 返回</a>
 				<h1
 					class="text-3xl font-extrabold bg-linear-to-r from-(--accent-primary) to-[#c8453f] bg-clip-text text-transparent m-0"
 				>
 					待辦清單
 				</h1>
-				<div class="w-10"></div>
+				<div>
+					<button class="btn-invert" onclick={handleResetAll}>全部重置</button>
+				</div>
 			</div>
 
-			<!-- Progress Summary -->
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<div
-					class="bg-white/90 backdrop-blur-xl border border-black/8 rounded-xl p-4 flex flex-col gap-3"
-				>
-					<div class="text-sm text-(--text-secondary) font-semibold">每日進度</div>
-					<div class="h-1.5 bg-(--bg-tertiary) rounded-full overflow-hidden">
-						<div
-							class="h-full bg-linear-to-r from-(--accent-primary) to-(--accent-secondary) rounded-full transition-all duration-300"
-							style="width: {Math.round(
-								(state.daily.length / checklistData.daily.filter((t) => isTaskVisible(t)).length) * 100
-							)}%"
-						></div>
-					</div>
-					<div class="text-xs text-(--text-secondary) text-right font-medium">
-						{state.daily.length}/{checklistData.daily.filter((t) => isTaskVisible(t)).length}
-					</div>
-				</div>
-				<div
-					class="bg-white/90 backdrop-blur-xl border border-black/8 rounded-xl p-4 flex flex-col gap-3"
-				>
-					<div class="text-sm text-(--text-secondary) font-semibold">每週進度</div>
-					<div class="h-1.5 bg-(--bg-tertiary) rounded-full overflow-hidden">
-						<div
-							class="h-full bg-linear-to-r from-(--accent-primary) to-(--accent-secondary) rounded-full transition-all duration-300"
-							style="width: {Math.round(
-								(state.weekly.length /
-									checklistData.weekly.filter(
-										(t) => t.type !== 'group' || t.subList?.some((s) => state.weekly.includes(s.id))
-									).length) * 100
-							)}%"
-						></div>
-					</div>
-					<div class="text-xs text-(--text-secondary) text-right font-medium">
-						{state.weekly.length}/{checklistData.weekly.filter((t) => t.type !== 'group').length}
-					</div>
-				</div>
-			</div>
+		<!-- Progress Summary -->
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			<ProgressCard label="每日進度" current={dailyProgress.current} total={dailyProgress.total} />
+			<ProgressCard
+				label="每週進度"
+				current={weeklyProgress.current}
+				total={weeklyProgress.total}
+			/>
 		</div>
 
-		<!-- Party Alert -->
-		{#if isPartyDay}
-			<div
-				class="bg-linear-to-r from-(--accent-primary)/20 to-(--accent-secondary)/15 backdrop-blur-xl border border-(--accent-primary)/30 rounded-xl p-4 flex items-center gap-4 animate-pulse"
-			>
-				<span class="text-4xl shrink-0">🎉</span>
-				<div class="flex-1">
-					<div class="font-bold text-(--accent-primary)">百業派對日</div>
-					<div class="text-sm text-(--text-secondary) mt-1 font-medium">時間：{baiye.time}</div>
-				</div>
-				<button
-					class="w-10 h-10 bg-(--accent-primary)/20 border border-(--accent-primary) rounded-lg flex items-center justify-center cursor-pointer transition-all duration-300 shrink-0 font-bold text-transparent hover:bg-(--accent-primary)/30 hover:scale-110 hover:shadow-lg hover:shadow-(--accent-primary)/30 active:scale-95 {state.daily.includes(
-						'd_baiye'
-					)
-						? 'bg-(--accent-primary) text-white shadow-lg shadow-(--accent-primary)/50'
-						: ''}"
-					onclick={() => toggleTask('daily', 'd_baiye')}
-					title="參加派對"
-				>
-					<span
-						class="{state.daily.includes('d_baiye')
-							? 'opacity-100'
-							: 'opacity-0'} transition-opacity duration-200">✓</span
-					>
-				</button>
-			</div>
-		{/if}
+		<!-- Daily guide now lives inside daily section below -->
+	</div>
 
-		<!-- Daily Tasks Section -->
-		<div class="bg-white/90 backdrop-blur-xl border border-black/8 rounded-2xl p-3 md:p-5 flex flex-col gap-3 shadow-sm">
-			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-				<h2 class="text-xl font-bold m-0 text-(--text-primary)">每日必做</h2>
-				<button
-					class="bg-(--accent-primary)/15 border border-(--accent-primary)/30 text-(--accent-primary) py-2 px-4 rounded-lg cursor-pointer text-sm font-bold transition-all duration-300 hover:bg-(--accent-primary)/25 hover:border-(--accent-primary) hover:shadow-md hover:shadow-(--accent-primary)/20 hover:scale-105 active:scale-95"
-					onclick={() => resetTasks('daily')}
-					title="重置所有任務"
-				>
-					🔄 重置
-				</button>
-			</div>
+	<!-- Party Alert -->
+	{#if isPartyDay}
+		<PartyAlert
+			time={$baiyeSettings.time}
+			isChecked={$checklistState.daily.includes('d_baiye')}
+			onToggle={() => logic.toggleTask('daily', 'd_baiye')}
+		/>
+	{/if}
 
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[1fr] gap-3 md:gap-4">
-				{#each checklistData.daily as item}
-					{#if isTaskVisible(item)}
-						{#if item.type === 'counter'}
-							<CounterCard
-								item={item}
-								count={counts[item.id] || 0}
-								onIncrement={() => incrementCounter(item.id, item.max ?? 1)}
-								onToggle={(i) => toggleCounter(item.id, i)}
-								onReset={() => resetCounter(item.id)}
-							/>
-						{:else}
-							<TaskCard
-								item={item}
-								checked={state.daily.includes(item.id)}
-								lifetime={lifetime[item.id] || 0}
-								limit={item.limit || 0}
-								onToggle={() => toggleTask('daily', item.id)}
-							/>
-						{/if}
+	<!-- Daily Tasks Section -->
+	<TaskSection title="每日必做">
+		{#snippet children()}
+			<div class="flex flex-col gap-6">
+				{#each groupedDaily as group}
+					{#if group.items.length}
+						<div class="flex flex-col gap-3">
+							<div class="card-section-title px-0 pt-0">{group.title}</div>
+							<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[1fr] gap-3 md:gap-4">
+								{#each group.items as item}
+									{#if item.type === 'counter'}
+									<CounterCard
+										item={item}
+										count={$countsState[item.id] || 0}
+										onIncrement={() => logic.incrementCounter(item.id, item.max ?? 1)}
+										onToggle={(i) => logic.toggleCounter(item.id, i)}
+										onReset={() => logic.resetCounter(item.id)}
+									/>
+									{:else}
+									<TaskCard
+										item={item}
+										checked={$checklistState.daily.includes(item.id)}
+										lifetime={$lifetimeState[item.id] || 0}
+										limit={item.limit || 0}
+										onToggle={() => logic.toggleTask('daily', item.id)}
+									/>
+									{/if}
+								{/each}
+							</div>
+						</div>
 					{/if}
 				{/each}
 			</div>
-		</div>
+		{/snippet}
+	</TaskSection>
 
-		<!-- Weekly Tasks Section -->
-		<div class="bg-white/90 backdrop-blur-xl border border-black/8 rounded-2xl p-3 md:p-5 flex flex-col gap-3 shadow-sm">
-			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-				<h2 class="text-xl font-bold m-0 text-(--text-primary)">每週必做</h2>
-				<button
-					class="bg-(--accent-primary)/15 border border-(--accent-primary)/30 text-(--accent-primary) py-2 px-4 rounded-lg cursor-pointer text-sm font-bold transition-all duration-300 hover:bg-(--accent-primary)/25 hover:border-(--accent-primary) hover:shadow-md hover:shadow-(--accent-primary)/20 hover:scale-105 active:scale-95"
-					onclick={() => resetTasks('weekly')}
-					title="重置所有任務"
-				>
-					🔄 重置
-				</button>
-			</div>
-
+	<!-- Weekly Tasks Section -->
+	<TaskSection title="每週必做">
+		{#snippet children()}
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+				<!-- 左側：商店必買清單 (群組卡) -->
 				<div class="grid grid-cols-1 auto-rows-[1fr] gap-3 md:gap-4">
-					{#each checklistData.weekly as item}
-						{#if item.type === 'group'}
-							<WeeklyGroupCard item={item} activeIds={state.weekly} onToggle={(id) => toggleTask('weekly', id)} />
-						{/if}
+					{#each checklistData.weekly.filter((i) => i.type === 'group') as item}
+						<WeeklyGroupCard
+							item={item}
+							activeIds={$checklistState.weekly}
+							onToggle={(id) => logic.toggleTask('weekly', id)}
+						/>
 					{/each}
 				</div>
 
+				<!-- 右側：其他每週項目 -->
 				<div class="grid grid-cols-1 sm:grid-cols-2 auto-rows-[1fr] gap-3 md:gap-4">
 					{#each checklistData.weekly.filter((i) => i.type !== 'group') as item}
 						<TaskCard
 							item={item}
-							checked={state.weekly.includes(item.id)}
+							checked={$checklistState.weekly.includes(item.id)}
 							size="compact"
-							onToggle={() => toggleTask('weekly', item.id)}
+							onToggle={() => logic.toggleTask('weekly', item.id)}
 						/>
 					{/each}
 				</div>
 			</div>
-		</div>
+		{/snippet}
+	</TaskSection>
 
-		<div class="h-8"></div>
-	</div>
+	<div class="h-8"></div>
+</div>
+
+<!-- debug panel removed in refactor -->

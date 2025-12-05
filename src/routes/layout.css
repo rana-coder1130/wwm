@@ -90,3 +90,115 @@ body {
 		opacity: 0.8;
 	}
 }
+
+/* 小型反轉樣式，套用於所有帶有 home-btn 的返回連結 */
+.home-btn {
+	padding: 8px 12px;
+	border: unset;
+	border-radius: 10px;
+	color: #212121;
+	z-index: 1;
+	background: #e8e8e8;
+	position: relative;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 1;
+	box-shadow: 2px 4px 10px -3px rgba(0, 0, 0, 0.22);
+	transition: all 200ms;
+	overflow: hidden;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
+.home-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 0;
+	border-radius: 10px;
+	background-color: #212121;
+	z-index: -1;
+	box-shadow: 2px 4px 10px -3px rgba(0, 0, 0, 0.22);
+	transition: all 200ms;
+}
+
+.home-btn:hover {
+	color: #e8e8e8;
+}
+.home-btn:hover::before {
+	width: 100%;
+}
+
+/* 可重用的反轉按鈕樣式，與重置按鈕一致 */
+.btn-invert {
+	padding: 8px 12px;
+	border: unset;
+	border-radius: 10px;
+	color: #212121;
+	z-index: 1;
+	background: #e8e8e8;
+	position: relative;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 1;
+	box-shadow: 2px 4px 10px -3px rgba(0, 0, 0, 0.22);
+	transition: all 200ms;
+	overflow: hidden;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
+.btn-invert::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 0;
+	border-radius: 10px;
+	background-color: #212121;
+	z-index: -1;
+	box-shadow: 2px 4px 10px -3px rgba(0, 0, 0, 0.22);
+	transition: all 200ms;
+}
+
+.btn-invert:hover {
+	color: #e8e8e8;
+}
+.btn-invert:hover::before {
+	width: 100%;
+}
+
+/* 通用卡片樣式（Checklist / Timer / 其他） */
+.app-card {
+	background: #fff;
+	border-radius: 0.75rem;
+	border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+	box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+	font-weight: 700;
+	color: #212121;
+	font-size: var(--text-base);
+}
+
+.card-sub {
+	color: var(--text-secondary);
+	font-size: var(--text-base);
+}
+
+.card-section-title {
+	font-weight: 700;
+	color: #212121;
+	font-size: var(--text-base);
+	padding: 0.5rem 1rem;
+}

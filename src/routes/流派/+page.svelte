@@ -32,7 +32,7 @@
 </svelte:head>
 
 <div class="page-header">
-	<a href="/" class="home-btn">⬅️ 回首頁</a>
+	<a href="/" class="btn-invert">⬅️ 回首頁</a>
 	<div class="page-title">流派配置器</div>
 </div>
 
@@ -81,12 +81,12 @@
 
 	<div class="gear-section">
 		<div class="section-header">
-			<div class="section-title">推薦套裝 (點擊查看)</div>
+			<div class="section-title">推薦套裝</div>
 		</div>
 		<div class="gear-grid">
 			{#if buildStyles[currentStyle].gear.length > 0}
 				{#each buildStyles[currentStyle].gear as gearName}
-					<a href="/套裝#{gearName}" class="gear-card">🛡️ {gearName}</a>
+					<div class="gear-card" aria-label="推薦套裝">🛡️ {gearName}</div>
 				{/each}
 			{:else}
 				<div style="color:#999;font-size:0.8125rem;">無特定推薦</div>
@@ -98,7 +98,7 @@
 </div>
 
 <style>
-	.home-btn,
+	.btn-invert,
 	.gear-card {
 		text-decoration: none;
 	}

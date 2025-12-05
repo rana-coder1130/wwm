@@ -1,74 +1,66 @@
 <script lang="ts">
 	const features = [
-		{ href: '/待辦清單', icon: '📝', title: '待辦清單', desc: '含商店必買' },
-		{ href: '/百業', icon: '⚙️', title: '百業設定', desc: '派對提醒' },
-		{ href: '/計時器', icon: '⏱️', title: '採集計時', desc: '24H材料' },
-		{ href: '/流派', icon: '⚔️', title: '流派配置', desc: '畢業推薦' },
-		{ href: '/套裝', icon: '🛡️', title: '全套裝圖鑑', desc: '來源/效果' },
-		{ href: '/商店', icon: '💰', title: '必買清單', desc: '不肝/鬼市' },
-		{ href: '/資源', icon: '🌿', title: '採集大全', desc: '藥材/素材' },
-		{ href: '/日課', icon: '📅', title: '日課指南', desc: '必做事項' }
+		{ href: '/待辦清單', icon: '📝', title: '待辦清單', desc: '盤點每日/每週重點' },
+		{ href: '/計時器', icon: '⏱️', title: '採集計時', desc: '追蹤採集冷卻與刷新' },
+		{ href: '/流派', icon: '⚔️', title: '流派配置', desc: '整理武學與畢業搭配' }
 	];
 
-	const infos = [
-		{ icon: '⚡', title: '快速查詢', desc: '一鍵查看所有遊戲信息' },
-		{ icon: '🎯', title: '精準推薦', desc: '根據版本更新及時調整' },
-		{ icon: '💾', title: '本地保存', desc: '所有數據離線可用' },
-		{ icon: '🌐', title: '實時更新', desc: '無需安裝應用程序' }
-	];
+	const badges = ['離線保存'];
 </script>
 
 <svelte:head>
 	<title>燕雲十六聲 - 遊戲助手</title>
 </svelte:head>
 
-<div class="flex flex-col h-full overflow-y-auto">
-	<!-- Features Section -->
-	<section class="py-16 flex-1">
-		<div class="max-w-7xl mx-auto px-8">
-			<h2 class="text-3xl font-extrabold text-(--text-primary) mb-8">功能導覽</h2>
-			
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="flex flex-col h-full overflow-y-auto bg-[radial-gradient(circle_at_12%_18%,rgba(212,48,47,0.05),transparent_24%),radial-gradient(circle_at_82%_6%,rgba(212,165,71,0.08),transparent_22%),#f8f9fb]">
+	<section class="py-12 px-6">
+		<div class="max-w-6xl mx-auto rounded-3xl overflow-hidden bg-linear-to-br from-(--accent-primary) via-(--accent-secondary)/92 to-(--accent-cyan)/88 text-white p-10 shadow-[0_20px_50px_-25px_rgba(0,0,0,0.35)]">
+			<div class="flex flex-wrap gap-2 mb-5">
+				{#each badges as badge}
+					<span class="px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] rounded-full bg-white/15 border border-white/20 backdrop-blur-sm">
+						{badge}
+					</span>
+				{/each}
+			</div>
+			<h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-3">燕雲十六聲</h1>
+			<div class="flex flex-wrap gap-3">
+			</div>
+		</div>
+	</section>
+
+	<section class="pb-14 px-6">
+		<div class="max-w-6xl mx-auto">
+			<div class="flex items-center justify-between gap-3 mb-6">
+				<h2 class="text-2xl font-extrabold text-(--text-primary) m-0">快速入口</h2>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 				{#each features as feature (feature.href)}
-					<a 
-						href={feature.href} 
-						class="group bg-white/90 backdrop-blur-xl border border-black/8 rounded-2xl p-8 flex flex-col items-center text-center gap-4 transition-all duration-300 ease-out relative overflow-hidden shadow-sm hover:border-(--accent-primary)/30 hover:bg-white hover:-translate-y-2 hover:shadow-lg active:-translate-y-1 no-underline text-inherit"
+					<a
+						href={feature.href}
+						class="group relative overflow-hidden rounded-2xl bg-white border border-black/8 p-6 flex flex-col gap-3 shadow-[0_12px_30px_-22px_rgba(0,0,0,0.35)] transition-all duration-250 hover:-translate-y-2 hover:shadow-lg no-underline text-(--text-primary)"
 					>
-						<div class="absolute inset-0 bg-linear-to-br from-(--accent-primary)/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-						<div class="text-5xl transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
-							{feature.icon}
+						<div class="absolute inset-0 bg-linear-to-br from-(--accent-primary)/6 via-transparent to-(--accent-secondary)/6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+						<div class="flex items-center justify-between">
+							<div class="text-3xl">{feature.icon}</div>
+							<span class="text-xs font-semibold px-3 py-1 rounded-full bg-(--accent-primary)/10 text-(--accent-primary)">入口</span>
 						</div>
-						<h3 class="text-lg font-bold text-(--text-primary) m-0 transition-colors duration-300 group-hover:text-(--accent-primary)">
-							{feature.title}
-						</h3>
-						<p class="text-sm text-(--text-secondary) m-0">
-							{feature.desc}
-						</p>
+						<div>
+							<h3 class="text-lg font-bold mb-1">{feature.title}</h3>
+							<p class="text-sm text-(--text-secondary) m-0">{feature.desc}</p>
+						</div>
+						<div class="flex items-center gap-2 text-(--accent-primary) font-semibold text-sm">
+							<span>打開</span>
+							<span aria-hidden="true">→</span>
+						</div>
 					</a>
 				{/each}
 			</div>
 		</div>
 	</section>
 
-	<!-- Info Section -->
-	<section class="bg-linear-to-br from-(--accent-primary)/3 to-(--accent-secondary)/2 border-y border-(--accent-primary)/10 py-16">
-		<div class="max-w-7xl mx-auto px-8">
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-				{#each infos as info (info.title)}
-					<div class="bg-white/80 border border-black/8 rounded-2xl p-8 text-center shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-						<div class="text-4xl mb-4">{info.icon}</div>
-						<h3 class="text-lg font-bold text-(--text-primary) mb-2">{info.title}</h3>
-						<p class="text-sm text-(--text-secondary) m-0">{info.desc}</p>
-					</div>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<!-- Footer -->
-	<footer class="bg-(--bg-secondary)/90 border-t border-black/8 py-12 text-center">
+	<footer class="bg-(--bg-secondary)/95 border-t border-black/8 py-12 text-center">
 		<div class="max-w-2xl mx-auto px-4">
-			<p class="text-sm text-(--text-secondary) mb-2">資料來源自燕雲十六聲</p>
+			<p class="text-sm text-(--text-secondary) mb-2">資料來源自燕雲十六聲，工具持續更新中。</p>
 			<p class="text-base text-(--accent-primary) font-bold italic m-0">祝各位俠士闖蕩江湖順利！</p>
 		</div>
 	</footer>

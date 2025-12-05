@@ -8,6 +8,15 @@ export interface ChecklistTask {
 	trackLifetime?: boolean;
 	limit?: number;
 	subList?: ChecklistTask[];
+	category?:
+		| 'core'
+		| 'optional'
+		| 'social'
+		| 'micro'
+		| 'timed'
+		| 'weekly-shop'
+		| 'weekly-activity'
+		| 'weekly-misc';
 }
 
 export interface ChecklistData {

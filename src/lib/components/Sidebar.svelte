@@ -4,21 +4,14 @@
 	const menuItems = [
 		{ icon: '🏠', label: '首頁儀表板', href: '/' },
 		{ icon: '📝', label: '待辦清單 (Checklist)', href: '/待辦清單' },
-		{ icon: '⚙️', label: '百業設定', href: '/百業' },
 		{ icon: '⏱️', label: '採集計時器', href: '/計時器' }
 	];
 
 	const toolItems = [
-		{ icon: '⚔️', label: '流派配置器', href: '/流派' },
-		{ icon: '🔧', label: '詞條庫', href: '/詞條' },
-		{ icon: '🛡️', label: '全套裝圖鑑', href: '/套裝' }
+		{ icon: '⚔️', label: '流派配置器', href: '/流派' }
 	];
 
-	const dailyItems = [
-		{ icon: '💰', label: '必買清單', href: '/商店' },
-		{ icon: '🌿', label: '藥材與素材', href: '/資源' },
-		{ icon: '📅', label: '日課說明', href: '/日課' }
-	];
+	const dailyItems: Array<{ icon: string; label: string; href: string }> = [];
 
 	function closeMenu() {
 		active = false;
@@ -62,17 +55,19 @@
 			</a>
 		{/each}
 
-		<div class="px-5 py-2 text-xs font-bold text-(--text-tertiary) uppercase tracking-wider mt-2">
-			日常與資源
-		</div>
-		{#each dailyItems as item}
-			<a 
-				href={item.href} 
-				class="flex items-center gap-3.5 py-3.5 px-5 text-(--text-secondary) no-underline transition-all duration-300 border-l-[3px] border-transparent font-medium hover:text-(--text-primary) hover:bg-[rgba(212,48,47,0.06)] hover:border-(--accent-primary) hover:pl-6 [&.active]:text-(--accent-primary) [&.active]:bg-[rgba(212,48,47,0.1)] [&.active]:border-(--accent-primary) [&.active]:font-bold"
-				onclick={closeMenu}
-			>
-				{item.icon} {item.label}
-			</a>
-		{/each}
+		{#if dailyItems.length}
+			<div class="px-5 py-2 text-xs font-bold text-(--text-tertiary) uppercase tracking-wider mt-2">
+				日常與資源
+			</div>
+			{#each dailyItems as item}
+				<a 
+					href={item.href} 
+					class="flex items-center gap-3.5 py-3.5 px-5 text-(--text-secondary) no-underline transition-all duration-300 border-l-[3px] border-transparent font-medium hover:text-(--text-primary) hover:bg-[rgba(212,48,47,0.06)] hover:border-(--accent-primary) hover:pl-6 [&.active]:text-(--accent-primary) [&.active]:bg-[rgba(212,48,47,0.1)] [&.active]:border-(--accent-primary) [&.active]:font-bold"
+					onclick={closeMenu}
+				>
+					{item.icon} {item.label}
+				</a>
+			{/each}
+		{/if}
 	</div>
 </nav>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ChecklistTask } from '$lib/types';
+  import Checkbox from '$lib/components/checklist/Checkbox.svelte';
 
   let { item, activeIds, onToggle } = $props<{
     item: ChecklistTask;
@@ -31,24 +32,24 @@
   })());
 </script>
 
-<div class="h-full bg-white border border-(--accent-primary)/20 rounded-xl overflow-hidden transition-all duration-200 hover:border-(--accent-primary)/40">
+<div class="app-card h-full overflow-hidden transition-all duration-200">
   <div class="bg-(--accent-primary)/6 border-b border-(--accent-primary)/15 p-3 md:p-4">
-    <div class="font-semibold text-(--accent-primary) m-0">{item.text}</div>
-    <div class="text-base text-(--text-secondary) mt-1">{item.sub}</div>
+    <div class="card-title m-0">{item.text}</div>
+    <div class="card-sub mt-1">{item.sub}</div>
   </div>
   <div class="flex flex-col p-0 divide-y divide-(--accent-primary)/12">
     {#each groupedList as group}
       <div class="flex flex-col">
-        <div class="px-4 pt-3 pb-2 text-base font-semibold tracking-wide text-(--text-secondary)">
+        <div class="card-section-title px-4 pt-3 pb-2">
           {group.label}
         </div>
         {#each group.items as sub (sub.id)}
           <button
-            class={`bg-transparent border-0 py-2.5 px-4 flex items-center gap-2.5 cursor-pointer transition-all duration-200 text-(--text-secondary) text-left font-medium text-base hover:bg-(--accent-primary)/10 hover:text-(--text-primary) ${activeIds.includes(sub.id) ? 'text-(--accent-primary) bg-(--accent-primary)/12 font-semibold' : ''}`}
+            class={`bg-transparent border-0 py-2.5 px-4 flex items-center gap-2.5 cursor-pointer transition-all duration-200 text-(--text-secondary) text-left font-medium text-base hover:bg-(--accent-primary)/10 hover:text-(--text-primary) ${activeIds.includes(sub.id) ? 'text-(--accent-primary) bg-(--accent-primary)/12 font-bold' : ''}`}
             onclick={() => onToggle(sub.id)}
             title={sub.text}
           >
-            <span class={`font-bold shrink-0 ${activeIds.includes(sub.id) ? 'inline text-(--accent-primary)' : 'hidden'}`}>✓</span>
+            <Checkbox checked={activeIds.includes(sub.id)} onToggle={() => onToggle(sub.id)} />
             <span>{sub.text}</span>
           </button>
         {/each}
