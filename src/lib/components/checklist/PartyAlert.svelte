@@ -21,8 +21,6 @@
 		onclick={onToggle}
 		title="參加派對"
 	>
-		<span class="{isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200"
-			>✓</span
-		>
+		<span class="{isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200">✓</span>
 	</button>
 </div>

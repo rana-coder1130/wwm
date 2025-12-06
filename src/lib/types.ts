@@ -62,3 +62,26 @@ export interface ResourceItem {
 	note?: string;
 	location?: string;
 }
+
+export interface SkinCategory {
+	id: string;
+	title: string;
+	desc: string;
+}
+
+export interface SkinItem {
+	id: string;
+	name: string;
+	tag: string;
+	source: string;
+	image?: string; // optional image path (eg. /images/skins/amber-veil.jpg)
+	imageMale?: string; // optional male variant image path
+	imageFemale?: string; // optional female variant image path
+	alt?: string; // optional alt text for accessibility
+}
+
+export interface SkinCollection {
+	title: string;
+	desc: string;
+	items: SkinItem[];
+}

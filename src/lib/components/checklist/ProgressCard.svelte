@@ -8,7 +8,9 @@
 	const percentage = $derived(Math.round((current / total) * 100));
 </script>
 
-<div class="bg-white/90 backdrop-blur-xl border border-black/8 rounded-xl p-4 flex flex-col gap-3">
+<div
+	class="bg-(--card-bg)/90 backdrop-blur-xl border border-(--card-border) rounded-xl p-4 flex flex-col gap-3 transition-colors duration-300"
+>
 	<div class="text-sm text-(--text-secondary) font-semibold">{label}</div>
 	<div class="h-1.5 bg-(--bg-tertiary) rounded-full overflow-hidden">
 		<div

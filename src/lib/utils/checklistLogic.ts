@@ -100,7 +100,9 @@ export function createChecklistLogic() {
 
 	function getVisibleWeeklyTasks() {
 		const state = get(checklistState);
-		return checklistData.weekly.filter((t) => t.type !== 'group' || t.subList?.some((s) => state.weekly.includes(s.id)));
+		return checklistData.weekly.filter(
+			(t) => t.type !== 'group' || t.subList?.some((s) => state.weekly.includes(s.id))
+		);
 	}
 
 	return {

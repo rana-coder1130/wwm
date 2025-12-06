@@ -26,35 +26,29 @@
 		{ key: 'timed', title: '限時活動' }
 	];
 
-
 	const logic = createChecklistLogic();
 
 	function handleResetAll() {
-		if (
-			!confirm(
-				'確定要全部重置嗎？這會清除每日/每週已勾選狀態、計數器與追蹤次數。'
-			)
-		) {
+		if (!confirm('確定要全部重置嗎？這會清除每日/每週已勾選狀態、計數器與追蹤次數。')) {
 			return;
 		}
 
 		const clearHidden = confirm('是否同時清除已隱藏項目？（會還原所有被隱藏的任務）');
 		logic.resetAll({ clearHidden });
-		// 小小延遲讓 UI 反應在 localStorage 更新後更平滑
 		setTimeout(() => {
 			location.reload();
 		}, 50);
 	}
 
-	const groupedDaily: Array<{ key: string; title: string; items: ChecklistTask[] }> = $derived.by(() =>
-		dailyGroups.map((group) => ({
-			...group,
-			items: checklistData.daily.filter(
-				(item) => (item.category || 'core') === group.key && logic.isTaskVisible(item)
-			)
-		}))
+	const groupedDaily: Array<{ key: string; title: string; items: ChecklistTask[] }> = $derived.by(
+		() =>
+			dailyGroups.map((group) => ({
+				...group,
+				items: checklistData.daily.filter(
+					(item) => (item.category || 'core') === group.key && logic.isTaskVisible(item)
+				)
+			}))
 	);
-
 
 	const isPartyDay = $baiyeSettings.days.includes(today);
 
@@ -65,31 +59,31 @@
 	});
 	const weeklyProgress = $derived({
 		current: $checklistState.weekly.length,
-		total: checklistData.weekly.reduce((acc, t) =>
-			acc + (t.type === 'group' && t.subList ? t.subList.length : 1),
+		total: checklistData.weekly.reduce(
+			(acc, t) => acc + (t.type === 'group' && t.subList ? t.subList.length : 1),
 			0
 		)
 	});
-	</script>
+</script>
 
-	<svelte:head>
-		<title>待辦清單 - 燕雲十六聲</title>
-	</svelte:head>
+<svelte:head>
+	<title>待辦清單 - 燕雲十六聲</title>
+</svelte:head>
 
-	<div class="flex flex-col h-full overflow-y-auto p-6 gap-8 max-w-7xl mx-auto w-full">
-		<!-- Header -->
-		<div class="flex flex-col gap-6">
-			<div class="flex justify-between items-center">
-				<a href="/" class="btn-invert">⬅️ 返回</a>
-				<h1
-					class="text-3xl font-extrabold bg-linear-to-r from-(--accent-primary) to-[#c8453f] bg-clip-text text-transparent m-0"
-				>
-					待辦清單
-				</h1>
-				<div>
-					<button class="btn-invert" onclick={handleResetAll}>全部重置</button>
-				</div>
+<div class="flex flex-col h-full overflow-y-auto p-6 gap-8 max-w-7xl mx-auto w-full">
+	<!-- Header -->
+	<div class="flex flex-col gap-6">
+		<div class="flex justify-between items-center">
+			<a href="/" class="btn-invert">⬅️ 返回</a>
+			<h1
+				class="text-3xl font-extrabold bg-linear-to-r from-(--accent-primary) to-[#c8453f] bg-clip-text text-transparent m-0"
+			>
+				待辦清單
+			</h1>
+			<div>
+				<button class="btn-invert" onclick={handleResetAll}>全部重置</button>
 			</div>
+		</div>
 
 		<!-- Progress Summary -->
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -121,24 +115,26 @@
 					{#if group.items.length}
 						<div class="flex flex-col gap-3">
 							<div class="card-section-title px-0 pt-0">{group.title}</div>
-							<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[1fr] gap-3 md:gap-4">
+							<div
+								class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[1fr] gap-3 md:gap-4"
+							>
 								{#each group.items as item}
 									{#if item.type === 'counter'}
-									<CounterCard
-										item={item}
-										count={$countsState[item.id] || 0}
-										onIncrement={() => logic.incrementCounter(item.id, item.max ?? 1)}
-										onToggle={(i) => logic.toggleCounter(item.id, i)}
-										onReset={() => logic.resetCounter(item.id)}
-									/>
+										<CounterCard
+											{item}
+											count={$countsState[item.id] || 0}
+											onIncrement={() => logic.incrementCounter(item.id, item.max ?? 1)}
+											onToggle={(i) => logic.toggleCounter(item.id, i)}
+											onReset={() => logic.resetCounter(item.id)}
+										/>
 									{:else}
-									<TaskCard
-										item={item}
-										checked={$checklistState.daily.includes(item.id)}
-										lifetime={$lifetimeState[item.id] || 0}
-										limit={item.limit || 0}
-										onToggle={() => logic.toggleTask('daily', item.id)}
-									/>
+										<TaskCard
+											{item}
+											checked={$checklistState.daily.includes(item.id)}
+											lifetime={$lifetimeState[item.id] || 0}
+											limit={item.limit || 0}
+											onToggle={() => logic.toggleTask('daily', item.id)}
+										/>
 									{/if}
 								{/each}
 							</div>
@@ -157,7 +153,7 @@
 				<div class="grid grid-cols-1 auto-rows-[1fr] gap-3 md:gap-4">
 					{#each checklistData.weekly.filter((i) => i.type === 'group') as item}
 						<WeeklyGroupCard
-							item={item}
+							{item}
 							activeIds={$checklistState.weekly}
 							onToggle={(id) => logic.toggleTask('weekly', id)}
 						/>
@@ -168,7 +164,7 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 auto-rows-[1fr] gap-3 md:gap-4">
 					{#each checklistData.weekly.filter((i) => i.type !== 'group') as item}
 						<TaskCard
-							item={item}
+							{item}
 							checked={$checklistState.weekly.includes(item.id)}
 							size="compact"
 							onToggle={() => logic.toggleTask('weekly', item.id)}
