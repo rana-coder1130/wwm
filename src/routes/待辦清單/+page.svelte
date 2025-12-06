@@ -52,7 +52,7 @@
 
 	const isPartyDay = $baiyeSettings.days.includes(today);
 
-	const visibleDailyTasks = $derived(() => logic.getVisibleDailyTasks());
+	const visibleDailyTasks = $derived.by(() => logic.getVisibleDailyTasks());
 	const dailyProgress = $derived({
 		current: $checklistState.daily.length,
 		total: visibleDailyTasks.length
