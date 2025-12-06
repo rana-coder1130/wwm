@@ -98,7 +98,7 @@ export const checklistData: ChecklistData = {
 			]
 		},
 		{ id: 'w1', text: '戰令每週任務', sub: '經驗上限', category: 'weekly-activity' },
-		{ id: 'w2', text: '俠境副本 (51級)', sub: '每週1次，定音石', category: 'weekly-activity' },
+		{ id: 'w2', text: '俠境副本', sub: '每週1次，定音石', category: 'weekly-activity' },
 		{
 			id: 'w5',
 			text: '煙花晚會 (週末)',

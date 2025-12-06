@@ -5,7 +5,7 @@
 		total: number;
 	}>();
 
-	const percentage = $derived(Math.round((current / total) * 100));
+	const percentage = $derived(total === 0 ? 0 : Math.round((current / total) * 100));
 </script>
 
 <div
