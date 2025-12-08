@@ -52,6 +52,11 @@ export const darkMode = createLocalStorage<boolean>('yanyunDarkMode', false);
 
 export const skinGender = createLocalStorage<'male' | 'female'>('yanyunSkinGender', 'male');
 
+export const checklistMeta = createLocalStorage<{ lastDailyReset: number; lastWeeklyReset: number }>(
+	'yanyunChecklistMeta',
+	{ lastDailyReset: 0, lastWeeklyReset: 0 }
+);
+
 export type ToastItem = {
 	id: number;
 	text: string;

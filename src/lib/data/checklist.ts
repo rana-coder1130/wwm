@@ -61,8 +61,8 @@ export const checklistData: ChecklistData = {
 		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'micro' },
 		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺麼玉', category: 'micro' },
 		{ id: 'd8', text: '大鵝治病', sub: '每日1次，每週限5', category: 'micro' },
-		{ id: 'd9', text: '消耗體力 (450點)', sub: '鍛造/製藥', category: 'optional' },
-		{ id: 'd10', text: '消耗心力', sub: '副本/據點', category: 'core' }
+		{ id: 'd9', text: '消耗體力(鍛造/製藥)', sub: '每天清一次消耗450點', category: 'optional' },
+		{ id: 'd10', text: '消耗心力', sub: '每天清一次消耗100~120點', category: 'core' }
 	],
 	weekly: [
 		{

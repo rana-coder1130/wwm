@@ -8,7 +8,7 @@
 
 <!-- Accessible button for toggling dark mode -->
 <button
-	class={`dm-toggle ${$darkMode ? 'dark' : 'light'} flex items-center gap-2 p-2 rounded-xl transition-colors duration-300`}
+	class={`dm-toggle ${$darkMode ? 'dark' : 'light'} flex items-center justify-center w-10 h-10 leading-10 p-0 rounded-xl transition-colors duration-300`}
 	aria-pressed={$darkMode}
 	aria-label={$darkMode ? '關閉暗色模式' : '開啟暗色模式'}
 	onclick={toggle}
@@ -34,7 +34,9 @@
 		border: 1px solid var(--card-border);
 		background: var(--card-bg);
 		color: var(--text-primary);
-		min-width: 48px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 	}
 	.dm-toggle.dark {
 		background: linear-gradient(90deg, #1f2937, #111827);

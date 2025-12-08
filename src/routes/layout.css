@@ -434,3 +434,33 @@ body {
 	color: var(--text-secondary);
 	font-size: 0.95rem;
 }
+
+/* 隱藏滾動條但保留滾動行為（可用於需要乾淨 UI 的容器） */
+.no-scrollbar {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none; /* WebKit browsers */
+	width: 0;
+	height: 0;
+}
+
+/* Animation utilities */
+.anim-fade-up {
+	animation: fadeIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.anim-slide-in-left {
+	animation: slideInLeft 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.anim-slide-in-right {
+	animation: slideInRight 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.btn-press {
+	transition:
+		transform 120ms ease,
+		box-shadow 120ms ease;
+}
+.btn-press:active {
+	transform: translateY(1px) scale(0.995);
+}

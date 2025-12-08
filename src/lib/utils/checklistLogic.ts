@@ -1,7 +1,8 @@
 import { checklistData } from '$lib/data/checklist';
 import type { ChecklistTask } from '$lib/types';
 import { get } from 'svelte/store';
-import { checklistState, countsState, lifetimeState, hiddenTasks } from '$lib/stores';
+import { checklistState, countsState, lifetimeState, hiddenTasks, checklistMeta } from '$lib/stores';
+import { browser } from '$app/environment';
 
 export function createChecklistLogic() {
 	function today() {
@@ -73,6 +74,31 @@ export function createChecklistLogic() {
 		}
 	}
 
+	function resetDaily() {
+		// 只清除每日勾選與每日型 counters
+		const state = get(checklistState);
+		checklistState.set({ ...state, daily: [] });
+
+		// reset daily counters
+		const counters = checklistData.daily.filter((t) => t.type === 'counter').map((t) => t.id);
+		const counts = get(countsState);
+		let nextCounts = { ...counts };
+		let changed = false;
+		for (const id of counters) {
+			if ((nextCounts[id] || 0) !== 0) {
+				nextCounts[id] = 0;
+				changed = true;
+			}
+		}
+		if (changed) countsState.set(nextCounts);
+	}
+
+	function resetWeekly() {
+		// 只清除每週勾選
+		const state = get(checklistState);
+		checklistState.set({ ...state, weekly: [] });
+	}
+
 	function toggleCounter(id: string, idx: number) {
 		const counts = get(countsState);
 		const current = counts[id] || 0;
@@ -105,12 +131,94 @@ export function createChecklistLogic() {
 		);
 	}
 
+	// --- Auto-reset logic: 每日 05:00、每週一 05:00 ---
+
+	function atHourOfDate(d: Date, hour = 5) {
+		const t = new Date(d);
+		t.setHours(hour, 0, 0, 0);
+		return t;
+	}
+
+	function mondayAtHour(d: Date, hour = 5) {
+		const t = new Date(d);
+		const day = t.getDay(); // 0 = Sun, 1 = Mon
+		// distance to Monday
+		const offset = (day + 6) % 7; // 0 when Monday
+		t.setDate(t.getDate() - offset);
+		t.setHours(hour, 0, 0, 0);
+		return t;
+	}
+
+	function performDailyResetIfNeeded(meta: { lastDailyReset: number; lastWeeklyReset: number }) {
+		const now = new Date();
+		const todayAt5 = atHourOfDate(now, 5).getTime();
+
+		if (now.getTime() >= todayAt5 && (meta.lastDailyReset || 0) < todayAt5) {
+			// 清除每日勾選
+			const state = get(checklistState);
+			checklistState.set({ ...state, daily: [] });
+
+			// 重置每日型的 counters（如果有）
+			const counters = checklistData.daily.filter((t) => t.type === 'counter').map((t) => t.id);
+			const counts = get(countsState);
+			let nextCounts = { ...counts };
+			let changed = false;
+			for (const id of counters) {
+				if ((nextCounts[id] || 0) !== 0) {
+					nextCounts[id] = 0;
+					changed = true;
+				}
+			}
+			if (changed) countsState.set(nextCounts);
+
+			// 更新 meta
+			checklistMeta.update((m) => ({ ...m, lastDailyReset: todayAt5 }));
+		}
+	}
+
+	function performWeeklyResetIfNeeded(meta: { lastDailyReset: number; lastWeeklyReset: number }) {
+		const now = new Date();
+		const monday5 = mondayAtHour(now, 5).getTime();
+
+		if (now.getTime() >= monday5 && (meta.lastWeeklyReset || 0) < monday5) {
+			// 清除每週勾選
+			const state = get(checklistState);
+			checklistState.set({ ...state, weekly: [] });
+
+			// 更新 meta
+			checklistMeta.update((m) => ({ ...m, lastWeeklyReset: monday5 }));
+		}
+	}
+
+	// 初始化且僅於瀏覽器端執行一次的定時檢查
+	if (browser) {
+		// 防止多次呼叫 createChecklistLogic 時重複註冊
+		if (!(window as any).__yanyun_checklist_auto_reset_initialized) {
+			(window as any).__yanyun_checklist_auto_reset_initialized = true;
+
+			// 立即檢查一次，然後每分鐘檢查
+			const runCheck = () => {
+				const meta = get(checklistMeta);
+				performDailyResetIfNeeded(meta);
+				performWeeklyResetIfNeeded(meta);
+			};
+
+			runCheck();
+			const id = setInterval(runCheck, 60 * 1000);
+
+			// 保留在 window 上，以便在需要時清理（開發環境熱重載友好）
+			(window as any).__yanyun_checklist_auto_reset_interval = id;
+		}
+	}
+
 	return {
 		toggleTask,
 		toggleCounter,
 		incrementCounter,
 		resetCounter,
 		resetAll,
+		resetDaily,
+		resetWeekly,
 		isTaskVisible,
 		getVisibleDailyTasks,
 		getVisibleWeeklyTasks
