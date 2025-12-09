@@ -2,8 +2,12 @@ import type { ChecklistData } from '../types';
 
 export const checklistData: ChecklistData = {
 	daily: [
+		// 每日必做
 		{ id: 'd1', text: '每日簽到 (朝夕共賞)', sub: '活動介面', category: 'core' },
 		{ id: 'd2', text: '戰令每日任務', sub: '解好解滿', category: 'core' },
+		{ id: 'd_fudi', text: '福地修煉', sub: '每日修煉任務', category: 'core' },
+		{ id: 'd_wuqinxi', text: '五禽戲', sub: '養生輕功/體操練習', category: 'core' },
+		{ id: 'd_honglu', text: '紅爐', sub: '每日紅爐加成', category: 'core' },
 		{
 			id: 'd_orders',
 			text: '江湖號令 (6次)',
@@ -12,59 +16,25 @@ export const checklistData: ChecklistData = {
 			max: 6,
 			category: 'core'
 		},
-		{ id: 'd_shiyimo', text: '時一墨答題', sub: '心心相印', category: 'core' },
-		{
-			id: 'd_collect',
-			text: '世界採集',
-			sub: '單人 24h / 多人 5 分鐘刷新，材料補給',
-			category: 'optional'
-		},
-		{ id: 'd_haibu', text: '仇殺／海捕', sub: '懸賞換四方錢與時裝', category: 'optional' },
-		{
-			id: 'd_pojun',
-			text: '破軍殺將 (20:30)',
-			sub: '限週三、週六',
-			days: [3, 6],
-			category: 'timed'
-		},
-		{
-			id: 'd_yijue',
-			text: '一決高下 (20:30)',
-			sub: '限週四、週日',
-			days: [0, 4],
-			category: 'timed'
-		},
-		{
-			id: 'd_train',
-			text: '天泉特訓 (體魄+1)',
-			sub: '神仙渡西邊',
-			trackLifetime: true,
-			limit: 10,
-			category: 'optional'
-		},
-		{
-			id: 'd_comb',
-			text: '不羨仙梳頭 (2次)',
-			sub: '共5天免費髮型',
-			trackLifetime: true,
-			limit: 5,
-			category: 'micro'
-		},
-		{
-			id: 'd_massage',
-			text: '開封按摩 (1次)',
-			sub: '領金縷衣',
-			trackLifetime: true,
-			limit: 10,
-			category: 'social'
-		},
-		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'micro' },
-		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺麼玉', category: 'micro' },
+		{ id: 'd10', text: '心心相印', sub: '消耗心力 100~120點', category: 'core' },
+		{ id: 'd_collect', text: '世界採集', sub: '單人 24h / 多人 5 分鐘刷新，材料補給', category: 'optional' },
+		{ id: 'd_haibu', text: '懸賞 (仇殺／海捕)', sub: '換四方錢與時裝', category: 'optional' },
+		{ id: 'd_train', text: '天泉特訓 (體魄+1)', sub: '消耗體力 450 點，神仙渡西邊', trackLifetime: true, limit: 10, category: 'optional' },
+		{ id: 'd_xiubian', text: '神仙渡西邊 (0/10)', sub: '每天清一次', trackLifetime: true, limit: 10, category: 'optional' },
+		{ id: 'd_massage', text: '開封按摩 (1次)', sub: '領金縷衣', trackLifetime: true, limit: 10, category: 'social' },
 		{ id: 'd8', text: '大鵝治病', sub: '每日1次，每週限5', category: 'micro' },
-		{ id: 'd9', text: '消耗體力(鍛造/製藥)', sub: '每天清一次消耗450點', category: 'optional' },
-		{ id: 'd10', text: '消耗心力', sub: '每天清一次消耗100~120點', category: 'core' }
+
+		// 每日選做
+		{ id: 'd_comb', text: '不羨仙梳頭 (2次)', sub: '共5天免費髮型', trackLifetime: true, limit: 5, category: 'micro' },
+		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺麼玉', category: 'micro' },
+		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'micro' },
+		{ id: 'd_explore', text: '探索 / 釣魚 / 休閒活動', sub: '', category: 'optional' },
+
+		// 積少成多
+		{ id: 'd_jinluyi', text: '金縷衣 (0/10)', sub: '累積領取', trackLifetime: true, limit: 10, category: 'micro' }
 	],
 	weekly: [
+		{ id: 'd_shiyimo', text: '時一墨答題', sub: '心心相印', category: 'core' },
 		{
 			id: 'w_guild',
 			text: '門派號令',

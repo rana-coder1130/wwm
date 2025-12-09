@@ -37,6 +37,53 @@
 	let modalMessage = $state('');
 	let clearHidden = $state(false);
 
+	// Countdown timers (next daily 05:00, next Monday 05:00)
+	let now = $state(Date.now());
+
+	function nextTodayAtHour(hour = 5) {
+		const d = new Date(now);
+		d.setHours(hour, 0, 0, 0);
+		if (d.getTime() <= now) d.setDate(d.getDate() + 1);
+		return d.getTime();
+	}
+
+	function nextMondayAtHour(hour = 5) {
+		const d = new Date(now);
+		const day = d.getDay(); // 0 = Sun
+		const daysUntilMon = (8 - day) % 7; // number of days to next Monday
+		d.setDate(d.getDate() + daysUntilMon);
+		d.setHours(hour, 0, 0, 0);
+		if (d.getTime() <= now) d.setDate(d.getDate() + 7);
+		return d.getTime();
+	}
+
+	function formatRemaining(ms: number) {
+		if (ms <= 0) return '00:00:00';
+		const total = Math.floor(ms / 1000);
+		const h = Math.floor(total / 3600);
+		const m = Math.floor((total % 3600) / 60);
+		const s = total % 60;
+		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+	}
+
+	let dailyCountdown = $state('00:00:00');
+	let weeklyCountdown = $state('00:00:00');
+
+	if (typeof window !== 'undefined') {
+		// single interval; keep id on window for HMR safety
+		if (!(window as any).__yanyun_checklist_countdown_id) {
+			window.addEventListener('beforeunload', () => {});
+			const id = setInterval(() => {
+				now = Date.now();
+				const nextDaily = nextTodayAtHour(5);
+				const nextWeekly = nextMondayAtHour(5);
+				dailyCountdown = formatRemaining(nextDaily - now);
+				weeklyCountdown = formatRemaining(nextWeekly - now);
+			}, 1000);
+			(window as any).__yanyun_checklist_countdown_id = id;
+		}
+	}
+
 	function requestResetDaily() {
 		pendingReset = 'daily';
 		modalTitle = '重置每日項目';
@@ -135,6 +182,18 @@
 				current={weeklyProgress.current}
 				total={weeklyProgress.total}
 			/>
+		</div>
+
+		<!-- Countdown timers -->
+		<div class="flex gap-4 text-sm text-(--text-secondary)">
+			<div class="flex items-center gap-2">
+				<span class="font-medium">下次每日重置：</span>
+				<span class="tabular-nums">{dailyCountdown}</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="font-medium">下次每週重置：</span>
+				<span class="tabular-nums">{weeklyCountdown}</span>
+			</div>
 		</div>
 
 		<!-- Daily guide now lives inside daily section below -->
