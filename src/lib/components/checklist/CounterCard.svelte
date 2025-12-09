@@ -24,7 +24,7 @@
 </script>
 
 <div
-	class="app-card h-full p-3 md:p-4 flex flex-col gap-3 transition-all duration-200 relative overflow-hidden ${count
+	class="app-card h-full p-3 md:p-4 flex flex-col gap-3 transition-all duration-200 relative overflow-hidden min-w-0 ${count
 		? 'border-(--accent-primary)/50'
 		: ''}"
 	role="button"
@@ -38,7 +38,7 @@
 	title="點擊卡片 +1，右鍵重置"
 >
 	<div class="flex justify-between items-start gap-4 relative z-10">
-		<div class="card-title flex-1">{item.text}</div>
+		<div class="card-title flex-1 min-w-0">{item.text}</div>
 		<div
 			class={`text-xs font-bold px-2 py-1 rounded-full border transition-all duration-150 ${
 				count
