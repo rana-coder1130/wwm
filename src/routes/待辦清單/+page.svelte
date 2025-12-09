@@ -17,6 +17,8 @@
 	import { createChecklistLogic } from '$lib/utils/checklistLogic';
 	import { showToast } from '$lib/utils/toast';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+import SettingsModal from '$lib/components/SettingsModal.svelte';
+import { countdownSettings } from '$lib/stores';
 
 	const today = new Date().getDay();
 
@@ -37,51 +39,90 @@
 	let modalMessage = $state('');
 	let clearHidden = $state(false);
 
-	// Countdown timers (next daily 05:00, next Monday 05:00)
-	let now = $state(Date.now());
-
-	function nextTodayAtHour(hour = 5) {
-		const d = new Date(now);
-		d.setHours(hour, 0, 0, 0);
-		if (d.getTime() <= now) d.setDate(d.getDate() + 1);
-		return d.getTime();
-	}
-
-	function nextMondayAtHour(hour = 5) {
-		const d = new Date(now);
-		const day = d.getDay(); // 0 = Sun
-		const daysUntilMon = (8 - day) % 7; // number of days to next Monday
-		d.setDate(d.getDate() + daysUntilMon);
-		d.setHours(hour, 0, 0, 0);
-		if (d.getTime() <= now) d.setDate(d.getDate() + 7);
-		return d.getTime();
-	}
-
-	function formatRemaining(ms: number) {
-		if (ms <= 0) return '00:00:00';
-		const total = Math.floor(ms / 1000);
-		const h = Math.floor(total / 3600);
-		const m = Math.floor((total % 3600) / 60);
-		const s = total % 60;
-		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-	}
+	// Countdown timers: use shared util for next reset calculation and formatting
+	import {
+		getNextDailyReset,
+		getNextWeeklyReset,
+		formatDurationMs,
+		formatNextResetLabel,
+		getNextAnnual,
+		getFixedDateTime,
+		getNextWeeklyForWeekday
+	} from '$lib/utils/resetCountdown';
 
 	let dailyCountdown = $state('00:00:00');
 	let weeklyCountdown = $state('00:00:00');
+	let dailyNextLabel = $state('05:00');
+	let weeklyNextLabel = $state('週一 05:00');
+	// Additional event countdowns
+	let battlePassCountdown = $state('00:00:00');
+	let battlePassLabel = $state('12/12 05:00');
+	let hemingCountdown = $state('00:00:00');
+	let hemingLabel = $state('12/12 05:00');
+	let seasonalShopCountdown = $state('00:00:00');
+	let seasonalShopLabel = $state('2026/02/05 18:30');
+	let fridayMarketCountdown = $state('00:00:00');
+	let fridayMarketLabel = $state('週五 05:00');
+
+	let settingsOpen = $state(false);
 
 	if (typeof window !== 'undefined') {
-		// single interval; keep id on window for HMR safety
-		if (!(window as any).__yanyun_checklist_countdown_id) {
-			window.addEventListener('beforeunload', () => {});
-			const id = setInterval(() => {
-				now = Date.now();
-				const nextDaily = nextTodayAtHour(5);
-				const nextWeekly = nextMondayAtHour(5);
-				dailyCountdown = formatRemaining(nextDaily - now);
-				weeklyCountdown = formatRemaining(nextWeekly - now);
-			}, 1000);
-			(window as any).__yanyun_checklist_countdown_id = id;
+		// enforce fixed hours (5) and ensure battle pass countdown is shown per user request
+		// This runs on page load and will set the persisted settings to the requested values.
+		try {
+			countdownSettings.update((s) => ({ ...s, dailyHour: 5, weeklyHour: 5, showBattlePass: true }));
+		} catch (e) {
+			// ignore
 		}
+
+		if (!(window as any).__yanyun_checklist_countdown_id) {
+	        const update = () => {
+						const now = Date.now();
+						const s = $countdownSettings;
+
+						// daily / weekly using configurable hours
+						let nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
+						if (nextDaily <= now) nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
+						let nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
+						if (nextWeekly <= now) nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
+
+						dailyCountdown = formatDurationMs(nextDaily - now);
+						weeklyCountdown = formatDurationMs(nextWeekly - now);
+						dailyNextLabel = formatNextResetLabel(new Date(nextDaily), false);
+						weeklyNextLabel = formatNextResetLabel(new Date(nextWeekly), true);
+
+						// Battle pass & Heming: annual on Dec 12 at configured visibility
+						if (s.showBattlePass) {
+							const nextBattle = getNextAnnual(12, 12, 5, 0).getTime();
+							battlePassCountdown = formatDurationMs(nextBattle - now);
+							battlePassLabel = formatNextResetLabel(new Date(nextBattle), true);
+						}
+
+						if (s.showHeming) {
+							const nextHeming = getNextAnnual(12, 12, 5, 0).getTime();
+							hemingCountdown = formatDurationMs(nextHeming - now);
+							hemingLabel = formatNextResetLabel(new Date(nextHeming), true);
+						}
+
+						// Seasonal shop: fixed datetime 2026-02-05 18:30
+						if (s.showSeasonalShop) {
+							const seasonal = getFixedDateTime(2026, 2, 5, 18, 30).getTime();
+							seasonalShopCountdown = formatDurationMs(seasonal - now);
+							seasonalShopLabel = formatNextResetLabel(new Date(seasonal), true);
+						}
+
+						// Friday market: weekly Friday at configured hour
+						if (s.showFridayMarket) {
+							const nextFriday = getNextWeeklyForWeekday(5, s.weeklyHour ?? 5, 0).getTime();
+							fridayMarketCountdown = formatDurationMs(nextFriday - now);
+							fridayMarketLabel = formatNextResetLabel(new Date(nextFriday), true);
+						}
+	        };
+
+	        update();
+	        const id = setInterval(update, 1000);
+	        (window as any).__yanyun_checklist_countdown_id = id;
+	    }
 	}
 
 	function requestResetDaily() {
@@ -130,18 +171,25 @@
 	}
 
 	const groupedDaily: Array<{ key: string; title: string; items: ChecklistTask[] }> = $derived.by(
-		() =>
-			dailyGroups.map((group) => ({
+		() => {
+			// read $hiddenTasks to ensure this derived re-runs when hidden list changes
+			const _h = $hiddenTasks;
+			return dailyGroups.map((group) => ({
 				...group,
 				items: checklistData.daily.filter(
 					(item) => (item.category || 'core') === group.key && logic.isTaskVisible(item)
 				)
-			}))
+			}));
+		}
 	);
 
 	const isPartyDay = $baiyeSettings.days.includes(today);
 
-	const visibleDailyTasks = $derived.by(() => logic.getVisibleDailyTasks());
+	const visibleDailyTasks = $derived.by(() => {
+		// reference $hiddenTasks so this derived updates when items are hidden/unhidden
+		const _h = $hiddenTasks;
+		return logic.getVisibleDailyTasks();
+	});
 	const dailyProgress = $derived({
 		current: $checklistState.daily.length,
 		total: visibleDailyTasks.length
@@ -159,7 +207,10 @@
 	<title>待辦清單 - 燕雲十六聲</title>
 </svelte:head>
 
+
 <div class="flex flex-col h-full overflow-y-auto no-scrollbar p-6 gap-8 max-w-7xl mx-auto w-full">
+
+
 	<!-- Header -->
 	<div class="flex flex-col gap-6">
 		<div class="flex justify-between items-center">
@@ -174,6 +225,65 @@
 			</div>
 		</div>
 
+		<!-- Timers (styled card placed under header) -->
+		<div class="app-card p-4">
+			<div class="flex items-center gap-4 justify-between">
+				<div class="flex items-center gap-4 min-w-[200px]">
+					<div class="w-10 h-10 rounded-lg bg-linear-to-br from-(--accent-primary) to-[#c8453f] flex items-center justify-center text-white">⏱</div>
+					<div>
+						<div class="text-sm font-semibold">倒數計時</div>
+						<div class="text-xs text-(--text-muted)">活動日期</div>
+					</div>
+				</div>
+					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 flex-1">
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">下次每日</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{dailyCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({dailyNextLabel})</div>
+					</div>
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">下次每週</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{weeklyCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({weeklyNextLabel})</div>
+					</div>
+					{#if $countdownSettings.showBattlePass}
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">戰令</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{battlePassCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({battlePassLabel})</div>
+					</div>
+					{/if}
+					{#if $countdownSettings.showHeming}
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">和鳴</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{hemingCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({hemingLabel})</div>
+					</div>
+					{/if}
+					{#if $countdownSettings.showSeasonalShop}
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">免肝商店 (賽季)</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{seasonalShopCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({seasonalShopLabel})</div>
+					</div>
+					{/if}
+					{#if $countdownSettings.showFridayMarket}
+					<div class="flex flex-col items-end p-2">
+						<div class="text-xs text-(--text-muted)">市買司（週五）</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{fridayMarketCountdown}</div>
+						<div class="text-xs text-(--text-muted)">({fridayMarketLabel})</div>
+					</div>
+					{/if}
+				</div>
+				<!-- settings button -->
+				<div class="ml-4">
+					<button class="btn btn-invert" onclick={() => (settingsOpen = true)}>設定</button>
+				</div>
+			</div>
+		</div>
+
+		<SettingsModal bind:open={settingsOpen} />
+
 		<!-- Progress Summary -->
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 			<ProgressCard label="每日進度" current={dailyProgress.current} total={dailyProgress.total} />
@@ -184,17 +294,7 @@
 			/>
 		</div>
 
-		<!-- Countdown timers -->
-		<div class="flex gap-4 text-sm text-(--text-secondary)">
-			<div class="flex items-center gap-2">
-				<span class="font-medium">下次每日重置：</span>
-				<span class="tabular-nums">{dailyCountdown}</span>
-			</div>
-			<div class="flex items-center gap-2">
-				<span class="font-medium">下次每週重置：</span>
-				<span class="tabular-nums">{weeklyCountdown}</span>
-			</div>
-		</div>
+
 
 		<!-- Daily guide now lives inside daily section below -->
 	</div>

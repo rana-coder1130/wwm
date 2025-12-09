@@ -2,6 +2,7 @@ import { checklistData } from '$lib/data/checklist';
 import type { ChecklistTask } from '$lib/types';
 import { get } from 'svelte/store';
 import { checklistState, countsState, lifetimeState, hiddenTasks, checklistMeta } from '$lib/stores';
+import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 
 export function createChecklistLogic() {
@@ -35,16 +36,14 @@ export function createChecklistLogic() {
 				nextLifetime = { ...lifetime, [id]: (lifetime[id] || 0) + 1 };
 
 				if (nextLifetime[id] >= (taskDef.limit || 0)) {
-					setTimeout(() => {
-						if (
-							confirm(
-								`【${taskDef.text}】已完成 ${taskDef.limit} 次。\n是否要永久隱藏此項目，讓清單更乾淨？`
-							)
-						) {
-							const prevHidden = get(hiddenTasks);
-							hiddenTasks.set([...prevHidden, id]);
-						}
-					}, 200);
+					// 不自動隱藏：導到確認頁面讓使用者決定是否隱藏
+					if (browser) {
+						const msg = `【${taskDef.text}】已完成 ${taskDef.limit} 次。是否要永久隱藏此項目？`;
+						const returnTo = (window && window.location && window.location.pathname) || '/';
+						goto(
+							`/確認?action=hideItem&id=${encodeURIComponent(id)}&message=${encodeURIComponent(msg)}&returnTo=${encodeURIComponent(returnTo)}`
+						);
+					}
 				}
 			}
 		}

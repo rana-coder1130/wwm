@@ -8,6 +8,7 @@ export const checklistData: ChecklistData = {
 		{ id: 'd_fudi', text: '福地修煉', sub: '每日修煉任務', category: 'core' },
 		{ id: 'd_wuqinxi', text: '五禽戲', sub: '養生輕功/體操練習', category: 'core' },
 		{ id: 'd_honglu', text: '紅爐', sub: '每日紅爐加成', category: 'core' },
+		{ id: 'd_qiyuanshu', text: '祈願樹', sub: '領取通寶', category: 'optional' },
 		{
 			id: 'd_orders',
 			text: '江湖號令 (6次)',
@@ -21,17 +22,17 @@ export const checklistData: ChecklistData = {
 		{ id: 'd_haibu', text: '懸賞 (仇殺／海捕)', sub: '換四方錢與時裝', category: 'optional' },
 		{ id: 'd_train', text: '天泉特訓 (體魄+1)', sub: '消耗體力 450 點，神仙渡西邊', trackLifetime: true, limit: 10, category: 'optional' },
 		{ id: 'd_xiubian', text: '神仙渡西邊 (0/10)', sub: '每天清一次', trackLifetime: true, limit: 10, category: 'optional' },
-		{ id: 'd_massage', text: '開封按摩 (1次)', sub: '領金縷衣', trackLifetime: true, limit: 10, category: 'social' },
-		{ id: 'd8', text: '大鵝治病', sub: '每日1次，每週限5', category: 'micro' },
+		{ id: 'd_massage', text: '按摩 (1次)', sub: '領金縷衣', trackLifetime: true, limit: 10, category: 'social' },
+		{ id: 'd8', text: '大鵝治病', sub: '每日1次，每週限5', category: 'optional' },
 
 		// 每日選做
-		{ id: 'd_comb', text: '不羨仙梳頭 (2次)', sub: '共5天免費髮型', trackLifetime: true, limit: 5, category: 'micro' },
-		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺麼玉', category: 'micro' },
-		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'micro' },
+		{ id: 'd_comb', text: '不羨仙梳頭 (2次)', sub: '共5天免費髮型', trackLifetime: true, limit: 5, category: 'optional' },
+		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺默玉', category: 'optional' },
+		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'optional' },
 		{ id: 'd_explore', text: '探索 / 釣魚 / 休閒活動', sub: '', category: 'optional' },
+		{ id: 'd_jinluyi', text: '金縷衣 (0/10)', sub: '累積領取', trackLifetime: true, limit: 10, category: 'optional' },
 
-		// 積少成多
-		{ id: 'd_jinluyi', text: '金縷衣 (0/10)', sub: '累積領取', trackLifetime: true, limit: 10, category: 'micro' }
+		
 	],
 	weekly: [
 		{ id: 'd_shiyimo', text: '時一墨答題', sub: '心心相印', category: 'core' },

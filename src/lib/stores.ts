@@ -57,6 +57,40 @@ export const checklistMeta = createLocalStorage<{ lastDailyReset: number; lastWe
 	{ lastDailyReset: 0, lastWeeklyReset: 0 }
 );
 
+export const countdownSettings = createLocalStorage<{
+	dailyHour: number;
+	weeklyHour: number;
+	showBattlePass: boolean;
+	showHeming: boolean;
+	showSeasonalShop: boolean;
+	showFridayMarket: boolean;
+}>('yanyunCountdownSettings', {
+	dailyHour: 5,
+	weeklyHour: 5,
+	showBattlePass: true,
+	showHeming: true,
+	showSeasonalShop: true,
+	showFridayMarket: true
+});
+
+// 確保 darkMode store 與 document.documentElement.classList 同步
+if (browser) {
+	// 初始化時應用當前值
+	try {
+		const current = get(darkMode);
+		if (current) document.documentElement.classList.add('dark');
+		else document.documentElement.classList.remove('dark');
+	} catch (e) {
+		// ignore
+	}
+
+	// 訂閱變化並同步 class
+	darkMode.subscribe((val) => {
+		if (val) document.documentElement.classList.add('dark');
+		else document.documentElement.classList.remove('dark');
+	});
+}
+
 export type ToastItem = {
 	id: number;
 	text: string;
