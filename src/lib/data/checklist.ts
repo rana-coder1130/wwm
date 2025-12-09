@@ -17,7 +17,7 @@ export const checklistData: ChecklistData = {
 			max: 6,
 			category: 'core'
 		},
-		{ id: 'd10', text: '心心相印', sub: '消耗心力 100~120點', category: 'core' },
+		{ id: 'd10', text: '心力消耗', sub: '消耗心力 180點', category: 'core' },
 		{
 			id: 'd_collect',
 			text: '世界採集',
@@ -28,15 +28,7 @@ export const checklistData: ChecklistData = {
 		{
 			id: 'd_train',
 			text: '天泉特訓 (體魄+1)',
-			sub: '消耗體力 450 點，神仙渡西邊',
-			trackLifetime: true,
-			limit: 10,
-			category: 'optional'
-		},
-		{
-			id: 'd_xiubian',
-			text: '神仙渡西邊 (0/10)',
-			sub: '每天清一次',
+			sub: '神仙渡西邊',
 			trackLifetime: true,
 			limit: 10,
 			category: 'optional'
