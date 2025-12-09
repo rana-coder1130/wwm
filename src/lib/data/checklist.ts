@@ -18,21 +18,59 @@ export const checklistData: ChecklistData = {
 			category: 'core'
 		},
 		{ id: 'd10', text: '心心相印', sub: '消耗心力 100~120點', category: 'core' },
-		{ id: 'd_collect', text: '世界採集', sub: '單人 24h / 多人 5 分鐘刷新，材料補給', category: 'optional' },
+		{
+			id: 'd_collect',
+			text: '世界採集',
+			sub: '單人 24h / 多人 5 分鐘刷新，材料補給',
+			category: 'optional'
+		},
 		{ id: 'd_haibu', text: '懸賞 (仇殺／海捕)', sub: '換四方錢與時裝', category: 'optional' },
-		{ id: 'd_train', text: '天泉特訓 (體魄+1)', sub: '消耗體力 450 點，神仙渡西邊', trackLifetime: true, limit: 10, category: 'optional' },
-		{ id: 'd_xiubian', text: '神仙渡西邊 (0/10)', sub: '每天清一次', trackLifetime: true, limit: 10, category: 'optional' },
-		{ id: 'd_massage', text: '按摩 (1次)', sub: '領金縷衣', trackLifetime: true, limit: 10, category: 'social' },
+		{
+			id: 'd_train',
+			text: '天泉特訓 (體魄+1)',
+			sub: '消耗體力 450 點，神仙渡西邊',
+			trackLifetime: true,
+			limit: 10,
+			category: 'optional'
+		},
+		{
+			id: 'd_xiubian',
+			text: '神仙渡西邊 (0/10)',
+			sub: '每天清一次',
+			trackLifetime: true,
+			limit: 10,
+			category: 'optional'
+		},
+		{
+			id: 'd_massage',
+			text: '按摩 (1次)',
+			sub: '領金縷衣',
+			trackLifetime: true,
+			limit: 10,
+			category: 'social'
+		},
 		{ id: 'd8', text: '大鵝治病', sub: '每日1次，每週限5', category: 'optional' },
 
 		// 每日選做
-		{ id: 'd_comb', text: '不羨仙梳頭 (2次)', sub: '共5天免費髮型', trackLifetime: true, limit: 5, category: 'optional' },
+		{
+			id: 'd_comb',
+			text: '不羨仙梳頭 (2次)',
+			sub: '共5天免費髮型',
+			trackLifetime: true,
+			limit: 5,
+			category: 'optional'
+		},
 		{ id: 'd7', text: '下棋贏3次', sub: '不羨仙葉不休，賺默玉', category: 'optional' },
 		{ id: 'd6', text: '不伏馬場賣馬', sub: '賺短陌錢 (每週限5)', category: 'optional' },
 		{ id: 'd_explore', text: '探索 / 釣魚 / 休閒活動', sub: '', category: 'optional' },
-		{ id: 'd_jinluyi', text: '金縷衣 (0/10)', sub: '累積領取', trackLifetime: true, limit: 10, category: 'optional' },
-
-		
+		{
+			id: 'd_jinluyi',
+			text: '金縷衣 (0/10)',
+			sub: '累積領取',
+			trackLifetime: true,
+			limit: 10,
+			category: 'optional'
+		}
 	],
 	weekly: [
 		{ id: 'd_shiyimo', text: '時一墨答題', sub: '心心相印', category: 'core' },

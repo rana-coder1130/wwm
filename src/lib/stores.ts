@@ -52,10 +52,10 @@ export const darkMode = createLocalStorage<boolean>('yanyunDarkMode', false);
 
 export const skinGender = createLocalStorage<'male' | 'female'>('yanyunSkinGender', 'male');
 
-export const checklistMeta = createLocalStorage<{ lastDailyReset: number; lastWeeklyReset: number }>(
-	'yanyunChecklistMeta',
-	{ lastDailyReset: 0, lastWeeklyReset: 0 }
-);
+export const checklistMeta = createLocalStorage<{
+	lastDailyReset: number;
+	lastWeeklyReset: number;
+}>('yanyunChecklistMeta', { lastDailyReset: 0, lastWeeklyReset: 0 });
 
 export const countdownSettings = createLocalStorage<{
 	dailyHour: number;
@@ -120,19 +120,31 @@ if (browser && Object.keys(ID_MIGRATIONS).length > 0) {
 		for (const [oldId, newId] of Object.entries(ID_MIGRATIONS)) {
 			if (oldId === newId) continue;
 
-			if (counts && Object.prototype.hasOwnProperty.call(counts, oldId) && !Object.prototype.hasOwnProperty.call(counts, newId)) {
+			if (
+				counts &&
+				Object.prototype.hasOwnProperty.call(counts, oldId) &&
+				!Object.prototype.hasOwnProperty.call(counts, newId)
+			) {
 				counts[newId] = counts[oldId];
 				delete counts[oldId];
 				changed = true;
 			}
 
-			if (lifetime && Object.prototype.hasOwnProperty.call(lifetime, oldId) && !Object.prototype.hasOwnProperty.call(lifetime, newId)) {
+			if (
+				lifetime &&
+				Object.prototype.hasOwnProperty.call(lifetime, oldId) &&
+				!Object.prototype.hasOwnProperty.call(lifetime, newId)
+			) {
 				lifetime[newId] = lifetime[oldId];
 				delete lifetime[oldId];
 				changed = true;
 			}
 
-			if (timers && Object.prototype.hasOwnProperty.call(timers, oldId) && !Object.prototype.hasOwnProperty.call(timers, newId)) {
+			if (
+				timers &&
+				Object.prototype.hasOwnProperty.call(timers, oldId) &&
+				!Object.prototype.hasOwnProperty.call(timers, newId)
+			) {
 				timers[newId] = timers[oldId];
 				delete timers[oldId];
 				changed = true;

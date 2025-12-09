@@ -17,8 +17,8 @@
 	import { createChecklistLogic } from '$lib/utils/checklistLogic';
 	import { showToast } from '$lib/utils/toast';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-import SettingsModal from '$lib/components/SettingsModal.svelte';
-import { countdownSettings } from '$lib/stores';
+	import SettingsModal from '$lib/components/SettingsModal.svelte';
+	import { countdownSettings } from '$lib/stores';
 
 	const today = new Date().getDay();
 
@@ -70,59 +70,64 @@ import { countdownSettings } from '$lib/stores';
 		// enforce fixed hours (5) and ensure battle pass countdown is shown per user request
 		// This runs on page load and will set the persisted settings to the requested values.
 		try {
-			countdownSettings.update((s) => ({ ...s, dailyHour: 5, weeklyHour: 5, showBattlePass: true }));
+			countdownSettings.update((s) => ({
+				...s,
+				dailyHour: 5,
+				weeklyHour: 5,
+				showBattlePass: true
+			}));
 		} catch (e) {
 			// ignore
 		}
 
 		if (!(window as any).__yanyun_checklist_countdown_id) {
-	        const update = () => {
-						const now = Date.now();
-						const s = $countdownSettings;
+			const update = () => {
+				const now = Date.now();
+				const s = $countdownSettings;
 
-						// daily / weekly using configurable hours
-						let nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
-						if (nextDaily <= now) nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
-						let nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
-						if (nextWeekly <= now) nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
+				// daily / weekly using configurable hours
+				let nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
+				if (nextDaily <= now) nextDaily = getNextDailyReset(s.dailyHour ?? 5).getTime();
+				let nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
+				if (nextWeekly <= now) nextWeekly = getNextWeeklyReset(s.weeklyHour ?? 5).getTime();
 
-						dailyCountdown = formatDurationMs(nextDaily - now);
-						weeklyCountdown = formatDurationMs(nextWeekly - now);
-						dailyNextLabel = formatNextResetLabel(new Date(nextDaily), false);
-						weeklyNextLabel = formatNextResetLabel(new Date(nextWeekly), true);
+				dailyCountdown = formatDurationMs(nextDaily - now);
+				weeklyCountdown = formatDurationMs(nextWeekly - now);
+				dailyNextLabel = formatNextResetLabel(new Date(nextDaily), false);
+				weeklyNextLabel = formatNextResetLabel(new Date(nextWeekly), true);
 
-						// Battle pass & Heming: annual on Dec 12 at configured visibility
-						if (s.showBattlePass) {
-							const nextBattle = getNextAnnual(12, 12, 5, 0).getTime();
-							battlePassCountdown = formatDurationMs(nextBattle - now);
-							battlePassLabel = formatNextResetLabel(new Date(nextBattle), true);
-						}
+				// Battle pass & Heming: annual on Dec 12 at configured visibility
+				if (s.showBattlePass) {
+					const nextBattle = getNextAnnual(12, 12, 5, 0).getTime();
+					battlePassCountdown = formatDurationMs(nextBattle - now);
+					battlePassLabel = formatNextResetLabel(new Date(nextBattle), true);
+				}
 
-						if (s.showHeming) {
-							const nextHeming = getNextAnnual(12, 12, 5, 0).getTime();
-							hemingCountdown = formatDurationMs(nextHeming - now);
-							hemingLabel = formatNextResetLabel(new Date(nextHeming), true);
-						}
+				if (s.showHeming) {
+					const nextHeming = getNextAnnual(12, 12, 5, 0).getTime();
+					hemingCountdown = formatDurationMs(nextHeming - now);
+					hemingLabel = formatNextResetLabel(new Date(nextHeming), true);
+				}
 
-						// Seasonal shop: fixed datetime 2026-02-05 18:30
-						if (s.showSeasonalShop) {
-							const seasonal = getFixedDateTime(2026, 2, 5, 18, 30).getTime();
-							seasonalShopCountdown = formatDurationMs(seasonal - now);
-							seasonalShopLabel = formatNextResetLabel(new Date(seasonal), true);
-						}
+				// Seasonal shop: fixed datetime 2026-02-05 18:30
+				if (s.showSeasonalShop) {
+					const seasonal = getFixedDateTime(2026, 2, 5, 18, 30).getTime();
+					seasonalShopCountdown = formatDurationMs(seasonal - now);
+					seasonalShopLabel = formatNextResetLabel(new Date(seasonal), true);
+				}
 
-						// Friday market: weekly Friday at configured hour
-						if (s.showFridayMarket) {
-							const nextFriday = getNextWeeklyForWeekday(5, s.weeklyHour ?? 5, 0).getTime();
-							fridayMarketCountdown = formatDurationMs(nextFriday - now);
-							fridayMarketLabel = formatNextResetLabel(new Date(nextFriday), true);
-						}
-	        };
+				// Friday market: weekly Friday at configured hour
+				if (s.showFridayMarket) {
+					const nextFriday = getNextWeeklyForWeekday(5, s.weeklyHour ?? 5, 0).getTime();
+					fridayMarketCountdown = formatDurationMs(nextFriday - now);
+					fridayMarketLabel = formatNextResetLabel(new Date(nextFriday), true);
+				}
+			};
 
-	        update();
-	        const id = setInterval(update, 1000);
-	        (window as any).__yanyun_checklist_countdown_id = id;
-	    }
+			update();
+			const id = setInterval(update, 1000);
+			(window as any).__yanyun_checklist_countdown_id = id;
+		}
 	}
 
 	function requestResetDaily() {
@@ -144,7 +149,8 @@ import { countdownSettings } from '$lib/stores';
 	function requestResetAll() {
 		pendingReset = 'all';
 		modalTitle = '全部重置';
-		modalMessage = '確定要全部重置嗎？這會清除每日/每週已勾選狀態、計數器與追蹤次數。\n選擇下方選項可同時還原已隱藏項目。';
+		modalMessage =
+			'確定要全部重置嗎？這會清除每日/每週已勾選狀態、計數器與追蹤次數。\n選擇下方選項可同時還原已隱藏項目。';
 		clearHidden = false;
 		modalOpen = true;
 	}
@@ -207,10 +213,7 @@ import { countdownSettings } from '$lib/stores';
 	<title>待辦清單 - 燕雲十六聲</title>
 </svelte:head>
 
-
 <div class="flex flex-col h-full overflow-y-auto no-scrollbar p-6 gap-8 max-w-7xl mx-auto w-full">
-
-
 	<!-- Header -->
 	<div class="flex flex-col gap-6">
 		<div class="flex justify-between items-center">
@@ -227,52 +230,70 @@ import { countdownSettings } from '$lib/stores';
 
 		<!-- Timers (styled card placed under header) -->
 		<div class="app-card p-4">
-			<div class="flex items-center gap-4 justify-between">
-				<div class="flex items-center gap-4 min-w-[200px]">
-					<div class="w-10 h-10 rounded-lg bg-linear-to-br from-(--accent-primary) to-[#c8453f] flex items-center justify-center text-white">⏱</div>
+			<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+				<div class="flex items-center gap-4 md:min-w-[200px]">
+					<div
+						class="w-10 h-10 rounded-lg bg-linear-to-br from-(--accent-primary) to-[#c8453f] flex items-center justify-center text-white"
+					>
+						⏱
+					</div>
 					<div>
 						<div class="text-sm font-semibold">倒數計時</div>
 						<div class="text-xs text-(--text-muted)">活動日期</div>
 					</div>
 				</div>
-					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 flex-1">
-					<div class="flex flex-col items-end p-2">
+				<div
+					class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 flex-1 w-full min-w-0"
+				>
+					<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
 						<div class="text-xs text-(--text-muted)">下次每日</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{dailyCountdown}</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+							{dailyCountdown}
+						</div>
 						<div class="text-xs text-(--text-muted)">({dailyNextLabel})</div>
 					</div>
-					<div class="flex flex-col items-end p-2">
+					<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
 						<div class="text-xs text-(--text-muted)">下次每週</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{weeklyCountdown}</div>
+						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+							{weeklyCountdown}
+						</div>
 						<div class="text-xs text-(--text-muted)">({weeklyNextLabel})</div>
 					</div>
 					{#if $countdownSettings.showBattlePass}
-					<div class="flex flex-col items-end p-2">
-						<div class="text-xs text-(--text-muted)">戰令</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{battlePassCountdown}</div>
-						<div class="text-xs text-(--text-muted)">({battlePassLabel})</div>
-					</div>
+						<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
+							<div class="text-xs text-(--text-muted)">戰令</div>
+							<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+								{battlePassCountdown}
+							</div>
+							<div class="text-xs text-(--text-muted)">({battlePassLabel})</div>
+						</div>
 					{/if}
 					{#if $countdownSettings.showHeming}
-					<div class="flex flex-col items-end p-2">
-						<div class="text-xs text-(--text-muted)">和鳴</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{hemingCountdown}</div>
-						<div class="text-xs text-(--text-muted)">({hemingLabel})</div>
-					</div>
+						<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
+							<div class="text-xs text-(--text-muted)">和鳴</div>
+							<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+								{hemingCountdown}
+							</div>
+							<div class="text-xs text-(--text-muted)">({hemingLabel})</div>
+						</div>
 					{/if}
 					{#if $countdownSettings.showSeasonalShop}
-					<div class="flex flex-col items-end p-2">
-						<div class="text-xs text-(--text-muted)">免肝商店 (賽季)</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{seasonalShopCountdown}</div>
-						<div class="text-xs text-(--text-muted)">({seasonalShopLabel})</div>
-					</div>
+						<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
+							<div class="text-xs text-(--text-muted)">免肝商店 (賽季)</div>
+							<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+								{seasonalShopCountdown}
+							</div>
+							<div class="text-xs text-(--text-muted)">({seasonalShopLabel})</div>
+						</div>
 					{/if}
 					{#if $countdownSettings.showFridayMarket}
-					<div class="flex flex-col items-end p-2">
-						<div class="text-xs text-(--text-muted)">市買司（週五）</div>
-						<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">{fridayMarketCountdown}</div>
-						<div class="text-xs text-(--text-muted)">({fridayMarketLabel})</div>
-					</div>
+						<div class="flex flex-col items-start sm:items-end p-2 min-w-0">
+							<div class="text-xs text-(--text-muted)">市買司（週五）</div>
+							<div class="tabular-nums text-lg font-semibold text-(--accent-primary)">
+								{fridayMarketCountdown}
+							</div>
+							<div class="text-xs text-(--text-muted)">({fridayMarketLabel})</div>
+						</div>
 					{/if}
 				</div>
 				<!-- settings button -->
@@ -294,8 +315,6 @@ import { countdownSettings } from '$lib/stores';
 			/>
 		</div>
 
-
-
 		<!-- Daily guide now lives inside daily section below -->
 	</div>
 
@@ -312,7 +331,9 @@ import { countdownSettings } from '$lib/stores';
 	<TaskSection title="每日任務">
 		{#snippet actions()}
 			<div class="flex items-center">
-				<button class="btn btn-reset btn-press" aria-label="重置每日" onclick={requestResetDaily}>重置每日</button>
+				<button class="btn btn-reset btn-press" aria-label="重置每日" onclick={requestResetDaily}
+					>重置每日</button
+				>
 			</div>
 		{/snippet}
 		{#snippet children()}
@@ -355,7 +376,9 @@ import { countdownSettings } from '$lib/stores';
 	<TaskSection title="每週任務">
 		{#snippet actions()}
 			<div class="flex items-center">
-				<button class="btn btn-reset btn-press" aria-label="重置每週" onclick={requestResetWeekly}>重置每週</button>
+				<button class="btn btn-reset btn-press" aria-label="重置每週" onclick={requestResetWeekly}
+					>重置每週</button
+				>
 			</div>
 		{/snippet}
 		{#snippet children()}
@@ -388,7 +411,15 @@ import { countdownSettings } from '$lib/stores';
 
 	<div class="h-8"></div>
 
-	<ConfirmModal bind:open={modalOpen} title={modalTitle} message={modalMessage} confirmLabel="確認" cancelLabel="取消" on:confirm={onModalConfirm} on:cancel={onModalCancel}>
+	<ConfirmModal
+		bind:open={modalOpen}
+		title={modalTitle}
+		message={modalMessage}
+		confirmLabel="確認"
+		cancelLabel="取消"
+		on:confirm={onModalConfirm}
+		on:cancel={onModalCancel}
+	>
 		{#if pendingReset === 'all'}
 			<div class="mt-3">
 				<label class="flex items-center gap-2">
@@ -398,7 +429,6 @@ import { countdownSettings } from '$lib/stores';
 			</div>
 		{/if}
 	</ConfirmModal>
-
-	</div>
+</div>
 
 <!-- debug panel removed in refactor -->

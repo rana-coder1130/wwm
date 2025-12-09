@@ -1,7 +1,13 @@
 import { checklistData } from '$lib/data/checklist';
 import type { ChecklistTask } from '$lib/types';
 import { get } from 'svelte/store';
-import { checklistState, countsState, lifetimeState, hiddenTasks, checklistMeta } from '$lib/stores';
+import {
+	checklistState,
+	countsState,
+	lifetimeState,
+	hiddenTasks,
+	checklistMeta
+} from '$lib/stores';
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 
